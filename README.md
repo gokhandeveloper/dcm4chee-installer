@@ -1,12 +1,12 @@
-The fastest way to setup your own DCM4CHEE PACS using PostgreSQL on Windows.
-This script combines all the software needed to get dcm4chee up and running on Windows 7+. It automates the instructions below:
+<p>The fastest way to setup your own DCM4CHEE PACS using PostgreSQL on Windows.</p>
+<p>This script(dcm4chee-2.18.0-psql.iss) combines all the software needed to get dcm4chee up and running on Windows 7+. It automates the instructions below:</p>
 
-http://www.dcm4che.org/confluence/display/ee2/Installation
+<p>http://www.dcm4che.org/confluence/display/ee2/Installation</p>
 
-Includes Windows firewall configuration, automated database backup schedule(twice a day), auditing, browser viewers (weasis 2.0 and ioviyam)
-DCM4CHEE version 2.18.0-postgresql
-JDK 7.60+
-Postgresql 9.3.4
+<p>Includes Windows firewall configuration, automated database backup schedule(twice a day), auditing and browser viewers (weasis 2.0 and ioviyam)
+-DCM4CHEE version 2.18.0-postgresql
+-JDK 7.60+
+-Postgresql 9.3.4</p>
 ---------------------------------------------
 ---------------------------------------------
 <h3>PreInstallation Process</h3>
