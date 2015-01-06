@@ -41,12 +41,16 @@ When you type the password "1", it will look like nothing is happening (not typi
 <p>2- Create a folder called dcm4chee-files under C drive.</p>
 <p>3- Unzip the dcm4chee-files folder from git into dmc4hcee-files</p>
 <p>4- Download the following and place them into dmc4hcee-files folder :
-Google chrome standalone(needed for web viewers) @ http://www.google.com/chrome/eula.html?system=true&standalone=1
-Postgresql 9.3.4 @ http://www.enterprisedb.com/products-services-training/pgdownload#windows
-Java JDK 7 @ http://download.oracle.com/otn-pub/java/jdk/7u71-b14/jdk-7u71-windows-i586.exe</p>
+</p>
+<ul>
+<li>DCM4CHEE2.18.0psql.exe @ Link coming soon</li>
+<li>DBbackups.exe @ Link coming soon</li>
+<li>dcm4chee-arr-3.0.12-psql.exe @ Link coming soon</li>
+<li>Google chrome standalone(needed for web viewers) @ http://www.google.com/chrome/eula.html?system=true&standalone=1</li>
+<li>Postgresql 9.3.4 @ http://www.enterprisedb.com/products-services-training/pgdownload#windows</li>
+<li>Java JDK 7 @ http://download.oracle.com/otn-pub/java/jdk/7u71-b14/jdk-7u71-windows-i586.exe</li>
+</ul>
 <p>5- Open & compile the project dcm4chee-2.18.0-psql.iss (it may take up to 1 minute depending on how fast your environment is).</p>
 <p>6- The binary file will be in dcm4chee-files\bin folder once done.</p>
 <p>Special thanks to http://www.codeproject.com/Articles/12153/SetEnv for enviroment setup</p>
 <p>DCM4CHEE website: http://www.dcm4che.org/confluence/display/ee2/Home</p>
-
-
