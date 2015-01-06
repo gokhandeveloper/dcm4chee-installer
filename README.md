@@ -29,7 +29,7 @@ IMPORTANT!!!!
 When you type the password "1", it will look like nothing is happening (not typing the password(the cursor will not be moving as you type "1")). Please make sure the prompted window is active by clicking on it first and press "1" only & press ENTER. It will prompt 4 times!
 </p>
 <p>8- Uncheck the stackbuilder and finish the postgresql installation.</p>
-<p>9- Finish the dcm4chee installation & restart your computer. Run the DMC4HCEE icon on your desktop </p>
+<p>9- Finish the dcm4chee installation & restart your computer. Run the DMC4HCEE icon on your desktop & Click on archive then login as admin/admin </p>
 <p>10- Go to start and type services and enter. Check to make sure DCM4HCEE sercice is up and running. If not right click and start the services</p>
 <p>11- If you cannot see the services at all, navigate to c\dcm4chee\dcm4chee-2.18.0\bin\ & run install_service.bat as administrator then repeat the step #10.</p>
 
@@ -39,15 +39,15 @@ When you type the password "1", it will look like nothing is happening (not typi
 <h3>Compiling the project with inno</h3>
 <p>1- Download and install inno @ http://www.jrsoftware.org/isdl.php</p>
 <p>2- Create a folder called dcm4chee-files under C drive.</p>
-<p>3- Unzip the dcm4chee-files folder from git into dmc4hcee-files</p>
-<p>4- Download the following and place them into dmc4hcee-files folder :
+<p>3- Unzip the dcm4chee-files folder from git into dcm4chee-files folder</p>
+<p>4- Download the following and place them into dcm4chee-files folder. You will need them in order to compile & run and install DCM4CHEE successfully:
 </p>
-<p>Exes.zip(Place the content of this file into dcm4chee-files folder) @ Link coming soon</p>
+<p>Exes.zip(Extract & place the content of this file into dcm4chee-files folder. ) @ Link coming soon</p>
 <ul>
-<li>DCM4CHEE2.18.0psql.exe </li>
-<li>DBbackups.exe</li>
-<li>dcm4chee-arr-3.0.12-psql.exe</li>
-<li>environment.exe</li>
+<li>DCM4CHEE2.18.0psql.exe(this includes jboss application integration, postgresql configuration and proper sql driver, weasis, oviyam and ioviyam) </li>
+<li>DBbackups.exe(backup task script for databases)</li>
+<li>dcm4chee-arr-3.0.12-psql.exe(auditing application)</li>
+<li>environment.exe(sets java environment variables)</li>
 <li>Google chrome standalone(needed for web viewers) @ http://www.google.com/chrome/eula.html?system=true&standalone=1</li>
 <li>Postgresql 9.3.4 @ http://www.enterprisedb.com/products-services-training/pgdownload#windows</li>
 <li>Java JDK 7 @ http://download.oracle.com/otn-pub/java/jdk/7u71-b14/jdk-7u71-windows-i586.exe</li>
