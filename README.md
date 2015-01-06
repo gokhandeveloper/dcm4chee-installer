@@ -9,7 +9,7 @@ JDK 7.60+
 Postgresql 9.3.4
 ---------------------------------------------
 ---------------------------------------------
-PreInstallation Process
+<h1>PreInstallation Process</h1>
 1- Make sure you delete existing dcm4chee installation.
 2- Uninstall the existing postgresql database $ delete the folder under Program Files
 ---------------------------------------------
