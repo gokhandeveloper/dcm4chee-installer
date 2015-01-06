@@ -1,0 +1,912 @@
+CREATE TABLE ae (
+    pk                SERIAL8 NOT NULL CONSTRAINT ae_pk PRIMARY KEY,
+    aet               TEXT NOT NULL,
+    hostname          TEXT NOT NULL,
+    port              INTEGER NOT NULL,
+    cipher_suites     TEXT,
+    pat_id_issuer     TEXT,
+    acc_no_issuer     TEXT,
+    user_id           TEXT,
+    passwd            TEXT,
+    fs_group_id       TEXT,
+    ae_group          TEXT,
+    ae_desc           TEXT,
+    wado_url          TEXT,
+    station_name      TEXT,
+    institution       TEXT,
+    department        TEXT,
+    installed         BOOLEAN NOT NULL,
+    vendor_data       BYTEA
+);
+CREATE UNIQUE INDEX aet ON ae(aet);
+CREATE INDEX hostname ON ae(hostname);
+CREATE INDEX ae_group ON ae(ae_group);
+
+CREATE TABLE code (
+    pk                SERIAL8 NOT NULL CONSTRAINT code_pk PRIMARY KEY,
+    code_value        TEXT NOT NULL,
+    code_designator   TEXT NOT NULL,
+    code_version      TEXT,
+    code_meaning      TEXT
+);
+CREATE UNIQUE INDEX code_value ON code(code_value,code_designator,code_version);
+
+CREATE TABLE issuer (
+    pk                SERIAL8 NOT NULL CONSTRAINT issuer_pk PRIMARY KEY,
+    entity_id         TEXT,
+    entity_uid        TEXT,
+    entity_uid_type   TEXT
+);
+CREATE UNIQUE INDEX entity_id ON issuer(entity_id);
+CREATE UNIQUE INDEX entity_uid ON issuer(entity_uid,entity_uid_type);
+
+CREATE TABLE patient (
+    pk                SERIAL8 NOT NULL CONSTRAINT patient_pk PRIMARY KEY,
+    merge_fk          INT8,
+    pat_id            TEXT,
+    pat_id_issuer     TEXT,
+    pat_name          TEXT,
+    pat_fn_sx         TEXT,
+    pat_gn_sx         TEXT,
+    pat_i_name        TEXT,
+    pat_p_name        TEXT,
+    pat_birthdate     TEXT,
+    pat_sex           TEXT,
+    pat_custom1       TEXT,
+    pat_custom2       TEXT,
+    pat_custom3       TEXT,
+    created_time      TIMESTAMP,
+    updated_time      TIMESTAMP,
+    pat_attrs         BYTEA,
+FOREIGN KEY (merge_fk) REFERENCES patient(pk)
+);
+CREATE INDEX pat_merge_fk ON patient(merge_fk);
+CREATE INDEX pat_id ON patient(pat_id, pat_id_issuer);
+CREATE INDEX pat_name ON patient(pat_name);
+CREATE INDEX pat_fn_sx ON patient(pat_fn_sx);
+CREATE INDEX pat_gn_sx ON patient(pat_gn_sx);
+CREATE INDEX pat_i_name ON patient(pat_i_name);
+CREATE INDEX pat_p_name ON patient(pat_p_name);
+CREATE INDEX pat_birthdate ON patient(pat_birthdate);
+CREATE INDEX pat_sex ON patient(pat_sex);
+CREATE INDEX pat_custom1 ON patient(pat_custom1);
+CREATE INDEX pat_custom2 ON patient(pat_custom2);
+CREATE INDEX pat_custom3 ON patient(pat_custom3);
+
+CREATE TABLE other_pid (
+    pk                SERIAL8 NOT NULL CONSTRAINT other_pid_pk PRIMARY KEY,
+    pat_id            TEXT NOT NULL,
+    pat_id_issuer     TEXT NOT NULL
+);
+CREATE UNIQUE INDEX other_pat_id ON other_pid(pat_id, pat_id_issuer);
+
+CREATE TABLE rel_pat_other_pid (
+    patient_fk        INT8,
+    other_pid_fk      INT8,
+FOREIGN KEY (patient_fk) REFERENCES patient(pk),
+FOREIGN KEY (other_pid_fk) REFERENCES other_pid(pk)
+);
+CREATE INDEX other_pid_pat_fk ON rel_pat_other_pid(patient_fk);
+CREATE INDEX pat_other_pid_fk ON rel_pat_other_pid(other_pid_fk);
+
+CREATE TABLE study (
+    pk                SERIAL8 NOT NULL CONSTRAINT study_pk PRIMARY KEY,
+    patient_fk        INT8,
+    accno_issuer_fk   INT8,
+    study_iuid        TEXT NOT NULL,
+    study_id          TEXT,
+    study_datetime    TIMESTAMP,
+    accession_no      TEXT,
+    ref_physician     TEXT,
+    ref_phys_fn_sx    TEXT,
+    ref_phys_gn_sx    TEXT,
+    ref_phys_i_name   TEXT,
+    ref_phys_p_name   TEXT,
+    study_desc        TEXT,
+    study_custom1     TEXT,
+    study_custom2     TEXT,
+    study_custom3     TEXT,
+    study_status_id   TEXT,
+    mods_in_study     TEXT,
+    cuids_in_study    TEXT,
+    num_series        INTEGER NOT NULL,
+    num_instances     INTEGER NOT NULL,
+    ext_retr_aet      TEXT,
+    retrieve_aets     TEXT,
+    fileset_iuid      TEXT,
+    fileset_id        TEXT,
+    availability      INTEGER NOT NULL,
+    study_status      INTEGER NOT NULL,
+    checked_time      TIMESTAMP,
+    created_time      TIMESTAMP,
+    updated_time      TIMESTAMP,
+    study_attrs       BYTEA,
+FOREIGN KEY (patient_fk) REFERENCES patient(pk),
+FOREIGN KEY (accno_issuer_fk) REFERENCES issuer(pk)
+);
+CREATE INDEX patient_fk ON study(patient_fk);
+CREATE INDEX accno_issuer_fk ON study(accno_issuer_fk);
+CREATE UNIQUE INDEX study_iuid ON study(study_iuid);
+CREATE INDEX study_id ON study(study_id);
+CREATE INDEX study_datetime ON study(study_datetime);
+CREATE INDEX accession_no ON study(accession_no);
+CREATE INDEX ref_physician ON study(ref_physician);
+CREATE INDEX ref_phys_fn_sx ON study(ref_phys_fn_sx);
+CREATE INDEX ref_phys_gn_sx ON study(ref_phys_gn_sx);
+CREATE INDEX ref_phys_i_name ON study(ref_phys_i_name);
+CREATE INDEX ref_phys_p_name ON study(ref_phys_p_name);
+CREATE INDEX study_desc ON study(study_desc);
+CREATE INDEX study_custom1 ON study(study_custom1);
+CREATE INDEX study_custom2 ON study(study_custom2);
+CREATE INDEX study_custom3 ON study(study_custom3);
+CREATE INDEX study_status_id ON study(study_status_id);
+CREATE INDEX study_checked ON study(checked_time);
+CREATE INDEX study_created ON study(created_time);
+CREATE INDEX study_updated ON study(updated_time);
+CREATE INDEX study_status ON study(study_status);
+
+CREATE TABLE rel_study_pcode (
+    study_fk          INT8,
+    pcode_fk          INT8,
+FOREIGN KEY (study_fk) REFERENCES study(pk),
+FOREIGN KEY (pcode_fk) REFERENCES code(pk)
+);
+CREATE INDEX pcode_study_fk ON rel_study_pcode(study_fk);
+CREATE INDEX study_pcode_fk ON rel_study_pcode(pcode_fk);
+
+CREATE TABLE study_permission (
+    pk                SERIAL8 NOT NULL CONSTRAINT study_permission_pk PRIMARY KEY,
+    study_iuid        TEXT NOT NULL,
+    action            TEXT NOT NULL,
+    roles             TEXT NOT NULL
+);
+CREATE UNIQUE INDEX study_perm_idx ON study_permission(study_iuid, action, roles);
+
+CREATE TABLE mpps (
+    pk                SERIAL8 NOT NULL CONSTRAINT mpps_pk PRIMARY KEY,
+    patient_fk        INT8,
+    drcode_fk         INT8,
+    mpps_iuid         TEXT NOT NULL,
+    pps_start         TIMESTAMP,
+    station_aet       TEXT,
+    modality          TEXT,
+    accession_no      TEXT,
+    mpps_status       INTEGER NOT NULL,
+    created_time      TIMESTAMP,
+    updated_time      TIMESTAMP,
+    mpps_attrs        BYTEA,
+FOREIGN KEY (patient_fk) REFERENCES patient(pk),
+FOREIGN KEY (drcode_fk) REFERENCES code(pk)
+);
+CREATE UNIQUE INDEX mpps_iuid ON mpps (mpps_iuid);
+CREATE INDEX mpps_patient_fk ON mpps(patient_fk);
+CREATE INDEX mpps_drcode_fk ON mpps(drcode_fk);
+CREATE INDEX mpps_pps_start ON mpps (pps_start);
+CREATE INDEX mpps_station_aet ON mpps (station_aet);
+CREATE INDEX mpps_modality ON mpps (modality);
+CREATE INDEX mpps_accession_no ON mpps (accession_no);    
+
+CREATE TABLE series (
+    pk                SERIAL8 NOT NULL CONSTRAINT series_pk PRIMARY KEY,
+    study_fk          INT8,
+    mpps_fk           INT8,
+    inst_code_fk      INT8,
+    series_iuid       TEXT NOT NULL,
+    series_no         TEXT,
+    modality          TEXT,
+    body_part         TEXT,
+    laterality        TEXT,
+    series_desc       TEXT,
+    institution       TEXT,
+    station_name      TEXT,
+    department        TEXT,
+    perf_physician    TEXT,
+    perf_phys_fn_sx   TEXT,
+    perf_phys_gn_sx   TEXT,
+    perf_phys_i_name  TEXT,
+    perf_phys_p_name  TEXT,
+    pps_start         TIMESTAMP,
+    pps_iuid          TEXT,
+    series_custom1    TEXT,
+    series_custom2    TEXT,
+    series_custom3    TEXT,
+    num_instances     INTEGER NOT NULL,
+    src_aet           TEXT,
+    ext_retr_aet      TEXT,
+    retrieve_aets     TEXT,
+    fileset_iuid      TEXT,
+    fileset_id        TEXT,
+    availability      INTEGER NOT NULL,
+    series_status     INTEGER NOT NULL,
+    created_time      TIMESTAMP,
+    updated_time      TIMESTAMP,
+    series_attrs      BYTEA,
+FOREIGN KEY (study_fk) REFERENCES study(pk),
+FOREIGN KEY (mpps_fk) REFERENCES mpps(pk),
+FOREIGN KEY (inst_code_fk) REFERENCES code(pk)
+);
+CREATE INDEX study_fk ON series(study_fk);
+CREATE INDEX series_mpps_fk ON series(mpps_fk);
+CREATE INDEX series_inst_code_fk ON series(inst_code_fk);
+CREATE UNIQUE INDEX series_iuid ON series(series_iuid);
+CREATE INDEX series_no ON series(series_no);
+CREATE INDEX modality ON series(modality);
+CREATE INDEX body_part ON series(body_part);
+CREATE INDEX laterality ON series(laterality);
+CREATE INDEX series_desc ON series(series_desc);
+CREATE INDEX institution ON series(institution);
+CREATE INDEX station_name ON series(station_name);
+CREATE INDEX department ON series(department);
+CREATE INDEX perf_physician ON series(perf_physician);
+CREATE INDEX perf_phys_fn_sx ON series(perf_phys_fn_sx);
+CREATE INDEX perf_phys_gn_sx ON series(perf_phys_gn_sx);
+CREATE INDEX perf_phys_i_name ON series(perf_phys_i_name);
+CREATE INDEX perf_phys_p_name ON series(perf_phys_p_name);
+CREATE INDEX series_pps_start ON series(pps_start);
+CREATE INDEX series_pps_iuid ON series (pps_iuid);
+CREATE INDEX series_custom1 ON series(series_custom1);
+CREATE INDEX series_custom2 ON series(series_custom2);
+CREATE INDEX series_custom3 ON series(series_custom3);
+CREATE INDEX series_src_aet ON series (src_aet);
+CREATE INDEX series_status ON series(series_status);
+CREATE INDEX series_created ON series(created_time);
+CREATE INDEX series_updated ON series(updated_time);
+
+CREATE TABLE series_req (
+    pk                SERIAL8 NOT NULL CONSTRAINT series_req_pk PRIMARY KEY,
+    series_fk         INT8,
+    accno_issuer_fk   INT8,
+    accession_no      TEXT,
+    study_iuid        TEXT,
+    req_proc_id       TEXT,
+    sps_id            TEXT,
+    req_service       TEXT,
+    req_physician     TEXT,
+    req_phys_fn_sx    TEXT,
+    req_phys_gn_sx    TEXT,
+    req_phys_i_name   TEXT,
+    req_phys_p_name   TEXT,
+FOREIGN KEY (series_fk) REFERENCES series(pk),
+FOREIGN KEY (accno_issuer_fk) REFERENCES issuer(pk)
+);
+CREATE INDEX ser_req_series_fk ON series_req(series_fk);
+CREATE INDEX ser_req_study_iuid ON series_req(study_iuid);
+CREATE INDEX ser_req_proc_id ON series_req(req_proc_id);
+CREATE INDEX ser_req_sps_id ON series_req(sps_id);    
+CREATE INDEX ser_req_service ON series_req(req_service);
+CREATE INDEX ser_req_phys ON series_req(req_physician);
+CREATE INDEX ser_req_phys_fn_sx ON series_req(req_phys_fn_sx);
+CREATE INDEX ser_req_phys_gn_sx ON series_req(req_phys_gn_sx);
+CREATE INDEX ser_req_phys_i ON series_req(req_phys_i_name);
+CREATE INDEX ser_req_phys_p ON series_req(req_phys_p_name);
+
+CREATE TABLE media (
+    pk                SERIAL8 NOT NULL CONSTRAINT media_pk PRIMARY KEY,
+    fileset_iuid      TEXT NOT NULL,
+    fileset_id        TEXT, 
+    media_rq_iuid     TEXT,
+    media_status      INTEGER NOT NULL,
+    media_status_info TEXT,
+    media_usage       INT8 NOT NULL,
+    created_time      TIMESTAMP,
+    updated_time      TIMESTAMP
+);
+CREATE UNIQUE INDEX fileset_iuid ON media(fileset_iuid);
+CREATE INDEX media_status ON media(media_status);
+
+CREATE TABLE instance (
+    pk                SERIAL8 NOT NULL CONSTRAINT instance_pk PRIMARY KEY,
+    series_fk         INT8,
+    srcode_fk         INT8,
+    media_fk          INT8,
+    sop_iuid          TEXT NOT NULL,
+    sop_cuid          TEXT NOT NULL,
+    inst_no           TEXT,
+    content_datetime  TIMESTAMP,
+    sr_complete       TEXT,
+    sr_verified       TEXT,
+    inst_custom1      TEXT,
+    inst_custom2      TEXT,
+    inst_custom3      TEXT,
+    ext_retr_aet      TEXT,
+    retrieve_aets     TEXT,
+    availability      INTEGER NOT NULL,
+    inst_status       INTEGER NOT NULL,
+    all_attrs         BOOLEAN NOT NULL,
+    commitment        BOOLEAN NOT NULL,
+    archived          BOOLEAN NOT NULL,
+    created_time      TIMESTAMP,
+    updated_time      TIMESTAMP,
+    inst_attrs        BYTEA,
+FOREIGN KEY (series_fk) REFERENCES series(pk),
+FOREIGN KEY (srcode_fk) REFERENCES code(pk),
+FOREIGN KEY (media_fk) REFERENCES media(pk)
+);
+CREATE INDEX series_fk ON instance(series_fk);
+CREATE INDEX srcode_fk ON instance(srcode_fk);
+CREATE INDEX media_fk ON instance(media_fk);
+CREATE UNIQUE INDEX sop_iuid ON instance(sop_iuid);
+CREATE INDEX sop_cuid ON instance(sop_cuid);
+CREATE INDEX inst_no ON instance(inst_no);
+CREATE INDEX content_datetime ON instance(content_datetime);
+CREATE INDEX sr_complete ON instance(sr_complete);
+CREATE INDEX sr_verified ON instance(sr_verified);
+CREATE INDEX inst_custom1 ON instance(inst_custom1);
+CREATE INDEX inst_custom2 ON instance(inst_custom2);
+CREATE INDEX inst_custom3 ON instance(inst_custom3);
+CREATE INDEX ext_retr_aet ON instance(ext_retr_aet);
+CREATE INDEX commitment ON instance(commitment);
+CREATE INDEX instance_status ON instance(inst_status);
+CREATE INDEX inst_created ON instance(created_time);
+CREATE INDEX inst_archived ON instance(archived);
+
+CREATE TABLE verify_observer (
+    pk                SERIAL8 NOT NULL CONSTRAINT verify_observer_pk PRIMARY KEY,
+    instance_fk       INT8,
+    verify_datetime   TIMESTAMP,
+    observer_name     TEXT,
+    observer_fn_sx    TEXT,
+    observer_gn_sx    TEXT,
+    observer_i_name   TEXT,
+    observer_p_name   TEXT,
+FOREIGN KEY (instance_fk) REFERENCES instance(pk)
+);
+CREATE INDEX observer_inst_fk ON verify_observer(instance_fk);
+CREATE INDEX verify_datetime ON verify_observer(verify_datetime);
+CREATE INDEX observer_name ON verify_observer(observer_name);
+CREATE INDEX observer_fn_sx ON verify_observer(observer_fn_sx);
+CREATE INDEX observer_gn_sx ON verify_observer(observer_gn_sx);
+CREATE INDEX observer_i_name ON verify_observer(observer_i_name);
+CREATE INDEX observer_p_name ON verify_observer(observer_p_name);
+
+CREATE TABLE content_item (
+    pk                SERIAL8 NOT NULL CONSTRAINT content_item_pk PRIMARY KEY,
+    instance_fk       INT8,
+    name_fk           INT8,
+    code_fk           INT8,
+    rel_type          TEXT,
+    text_value        TEXT,
+FOREIGN KEY (instance_fk) REFERENCES instance(pk),
+FOREIGN KEY (name_fk) REFERENCES code(pk),
+FOREIGN KEY (code_fk) REFERENCES code(pk)
+);
+CREATE INDEX content_item_inst_fk ON content_item(instance_fk);
+CREATE INDEX content_item_name_fk ON content_item(name_fk);
+CREATE INDEX content_item_code_fk ON content_item(code_fk);
+CREATE INDEX content_item_rel_type ON content_item(rel_type);
+CREATE INDEX content_item_text_value ON content_item(text_value);
+
+CREATE TABLE filesystem (
+    pk                SERIAL8 NOT NULL CONSTRAINT filesystem_pk PRIMARY KEY,
+    next_fk           INT8,
+    dirpath           TEXT NOT NULL,
+    fs_group_id       TEXT NOT NULL,
+    retrieve_aet      TEXT NOT NULL,
+    availability      INTEGER NOT NULL,
+    fs_status         INTEGER NOT NULL,
+    user_info         TEXT ,
+FOREIGN KEY (next_fk) REFERENCES filesystem(pk)
+);
+CREATE UNIQUE INDEX fs_dirpath ON filesystem(dirpath);
+CREATE INDEX fs_next_fk ON filesystem(next_fk);
+CREATE INDEX fs_group_id ON filesystem(fs_group_id);
+CREATE INDEX fs_retrieve_aet ON filesystem(retrieve_aet);
+CREATE INDEX fs_availability ON filesystem(availability);
+CREATE INDEX fs_status ON filesystem(fs_status);
+
+CREATE TABLE files (
+    pk                SERIAL8 NOT NULL CONSTRAINT files_pk PRIMARY KEY,
+    instance_fk       INT8,
+    filesystem_fk     INT8,
+    filepath          TEXT NOT NULL,
+    file_tsuid        TEXT NOT NULL,
+    file_md5          TEXT,
+    file_size         INT8,
+    file_status       INTEGER,
+    md5_check_time    TIMESTAMP,
+    created_time      TIMESTAMP,
+FOREIGN KEY (instance_fk) REFERENCES instance(pk),
+FOREIGN KEY (filesystem_fk) REFERENCES filesystem(pk)
+);
+CREATE INDEX instance_fk ON files(instance_fk);
+CREATE INDEX filesystem_fk ON files(filesystem_fk);
+CREATE INDEX file_tsuid ON files(file_tsuid);
+CREATE INDEX md5_check_time ON files(md5_check_time);
+CREATE INDEX file_created ON files(created_time);
+CREATE INDEX file_status ON files(file_status);
+CREATE INDEX filepath ON files(filepath);
+
+CREATE TABLE study_on_fs (
+    pk                SERIAL8 NOT NULL CONSTRAINT study_on_fs_pk PRIMARY KEY,
+    study_fk          INT8,
+    filesystem_fk     INT8,
+    access_time       TIMESTAMP NOT NULL,
+    mark_to_delete    BOOLEAN NOT NULL,
+FOREIGN KEY (study_fk) REFERENCES study(pk),
+FOREIGN KEY (filesystem_fk) REFERENCES filesystem(pk)
+);
+CREATE UNIQUE INDEX i_study_on_fs ON study_on_fs(study_fk, filesystem_fk);
+CREATE INDEX fs_of_study ON study_on_fs(filesystem_fk);
+CREATE INDEX access_time ON study_on_fs(access_time);
+CREATE INDEX mark_to_delete ON study_on_fs(mark_to_delete);
+
+CREATE TABLE mwl_item (
+    pk                SERIAL8 NOT NULL CONSTRAINT mwl_item_pk PRIMARY KEY,
+    patient_fk        INT8,
+    sps_status        INTEGER,
+    sps_id            TEXT,
+    start_datetime    TIMESTAMP NOT NULL,
+    station_aet       TEXT NOT NULL,
+    station_name      TEXT,
+    modality          TEXT NOT NULL,
+    perf_physician    TEXT,
+    perf_phys_fn_sx   TEXT,
+    perf_phys_gn_sx   TEXT,
+    perf_phys_i_name  TEXT,
+    perf_phys_p_name  TEXT,
+    req_proc_id       TEXT NOT NULL,
+    accession_no      TEXT,
+    study_iuid        TEXT NOT NULL,
+    created_time      TIMESTAMP,
+    updated_time      TIMESTAMP,
+    item_attrs        BYTEA,
+FOREIGN KEY (patient_fk) REFERENCES patient(pk)
+);
+CREATE INDEX mwl_patient_fk ON mwl_item(patient_fk);
+CREATE INDEX sps_status ON mwl_item(sps_status);
+CREATE UNIQUE INDEX mwl_sps_id ON mwl_item (sps_id,req_proc_id);
+CREATE INDEX mwl_start_time ON mwl_item (start_datetime);
+CREATE INDEX mwl_station_aet ON mwl_item (station_aet);
+CREATE INDEX mwl_station_name ON mwl_item (station_name);
+CREATE INDEX mwl_modality ON mwl_item (modality);
+CREATE INDEX mwl_perf_physician ON mwl_item(perf_physician);
+CREATE INDEX mwl_perf_phys_fn_sx ON mwl_item(perf_phys_fn_sx);
+CREATE INDEX mwl_perf_phys_gn_sx ON mwl_item(perf_phys_gn_sx);
+CREATE INDEX mwl_perf_phys_i_nm ON mwl_item(perf_phys_i_name);
+CREATE INDEX mwl_perf_phys_p_nm ON mwl_item(perf_phys_p_name);
+CREATE INDEX mwl_req_proc_id ON mwl_item (req_proc_id);
+CREATE INDEX mwl_accession_no ON mwl_item (accession_no);
+CREATE INDEX mwl_study_iuid ON mwl_item(study_iuid);
+
+CREATE TABLE gpsps (
+    pk                SERIAL8 NOT NULL CONSTRAINT gpsps_pk PRIMARY KEY,
+    patient_fk        INT8,
+    code_fk           INT8,
+    gpsps_iuid        TEXT NOT NULL,
+    gpsps_tuid        TEXT,
+    start_datetime    TIMESTAMP NOT NULL,
+    end_datetime      TIMESTAMP,
+    gpsps_status      INTEGER,
+    gpsps_prior       INTEGER,
+    in_availability   INTEGER,
+    item_attrs        BYTEA,
+FOREIGN KEY (patient_fk) REFERENCES patient(pk),
+FOREIGN KEY (code_fk) REFERENCES code(pk)
+);
+CREATE INDEX gpsps_patient_fk ON gpsps(patient_fk);
+CREATE INDEX gpsps_code_fk ON gpsps(code_fk);
+CREATE UNIQUE INDEX gpsps_iuid ON gpsps(gpsps_iuid);
+CREATE INDEX gpsps_tuid ON gpsps(gpsps_tuid);
+CREATE INDEX gpsps_start_time ON gpsps(start_datetime);
+CREATE INDEX gpsps_end_time ON gpsps(end_datetime);
+CREATE INDEX gpsps_status ON gpsps(gpsps_status);
+CREATE INDEX gpsps_prior ON gpsps(gpsps_prior);
+CREATE INDEX in_availability ON gpsps(in_availability);
+
+CREATE TABLE rel_gpsps_appcode (
+    gpsps_fk          INT8,
+    appcode_fk        INT8,
+FOREIGN KEY (gpsps_fk) REFERENCES gpsps(pk),
+FOREIGN KEY (appcode_fk) REFERENCES code(pk)
+);
+CREATE INDEX appcode_gpsps_fk ON rel_gpsps_appcode(gpsps_fk);
+CREATE INDEX gpsps_appcode_fk ON rel_gpsps_appcode(appcode_fk);
+
+CREATE TABLE rel_gpsps_devname (
+    gpsps_fk          INT8,
+    devname_fk        INT8,
+FOREIGN KEY (gpsps_fk) REFERENCES gpsps(pk),
+FOREIGN KEY (devname_fk) REFERENCES code(pk)
+);
+CREATE INDEX devname_gpsps_fk ON rel_gpsps_devname(gpsps_fk);
+CREATE INDEX gpsps_devname_fk ON rel_gpsps_devname(devname_fk);
+
+CREATE TABLE rel_gpsps_devclass (
+    gpsps_fk          INT8,
+    devclass_fk       INT8,
+FOREIGN KEY (gpsps_fk) REFERENCES gpsps(pk),
+FOREIGN KEY (devclass_fk) REFERENCES code(pk)
+);
+CREATE INDEX devclass_gpsps_fk ON rel_gpsps_devclass(gpsps_fk);
+CREATE INDEX gpsps_devclass_fk ON rel_gpsps_devclass(devclass_fk);
+
+CREATE TABLE rel_gpsps_devloc (
+    gpsps_fk          INT8,
+    devloc_fk         INT8,
+FOREIGN KEY (gpsps_fk) REFERENCES gpsps(pk),
+FOREIGN KEY (devloc_fk) REFERENCES code(pk)
+);
+CREATE INDEX devloc_gpsps_fk ON rel_gpsps_devloc(gpsps_fk);
+CREATE INDEX gpsps_devloc_fk ON rel_gpsps_devloc(devloc_fk);
+
+CREATE TABLE gpsps_perf (
+    pk                SERIAL8 NOT NULL CONSTRAINT gpsps_perf_pk PRIMARY KEY,
+    gpsps_fk          INT8,
+    code_fk           INT8,
+    human_perf_name   TEXT,
+    hum_perf_fn_sx    TEXT,
+    hum_perf_gn_sx    TEXT,
+    hum_perf_i_name   TEXT,
+    hum_perf_p_name   TEXT,
+FOREIGN KEY (gpsps_fk) REFERENCES gpsps(pk),
+FOREIGN KEY (code_fk) REFERENCES code(pk)
+);
+CREATE INDEX gpsps_perf_sps_fk ON gpsps_perf(gpsps_fk);
+CREATE INDEX gpsps_perf_code_fk ON gpsps_perf(code_fk);
+CREATE INDEX gpsps_perf_name ON gpsps_perf(human_perf_name);
+CREATE INDEX gpsps_perf_fn_sx ON gpsps_perf(hum_perf_fn_sx);
+CREATE INDEX gpsps_perf_gn_sx ON gpsps_perf(hum_perf_gn_sx);
+CREATE INDEX gpsps_perf_i_name ON gpsps_perf(hum_perf_i_name);
+CREATE INDEX gpsps_perf_p_name ON gpsps_perf(hum_perf_p_name);
+
+CREATE TABLE gpsps_req (
+    pk                SERIAL8 NOT NULL CONSTRAINT gpsps_req_pk PRIMARY KEY,
+    gpsps_fk          INT8,
+    req_proc_id       TEXT,
+    accession_no      TEXT,
+FOREIGN KEY (gpsps_fk) REFERENCES gpsps(pk)
+);
+CREATE INDEX gpsps_req_gpsps_fk ON gpsps_req(gpsps_fk);
+CREATE INDEX gpsps_req_proc_id ON gpsps_req(req_proc_id);
+CREATE INDEX gpsps_req_acc_no ON gpsps_req(accession_no);    
+
+CREATE TABLE gppps (
+    pk                SERIAL8 NOT NULL CONSTRAINT gppps_pk PRIMARY KEY,
+    patient_fk        INT8,
+    pps_iuid          TEXT NOT NULL,
+    pps_start         TIMESTAMP,
+    pps_status        INTEGER NOT NULL,
+    created_time      TIMESTAMP,
+    updated_time      TIMESTAMP,
+    pps_attrs         BYTEA,
+FOREIGN KEY (patient_fk) REFERENCES patient(pk)
+);
+CREATE UNIQUE INDEX gppps_iuid ON gppps (pps_iuid);
+CREATE INDEX gppps_patient_fk ON gppps(patient_fk);
+CREATE INDEX gppps_pps_start ON gppps (pps_start);
+
+CREATE TABLE rel_gpsps_gppps (
+    gpsps_fk          INT8,
+    gppps_fk          INT8,
+FOREIGN KEY (gpsps_fk) REFERENCES gpsps(pk),
+FOREIGN KEY (gppps_fk) REFERENCES gppps(pk)
+);
+CREATE INDEX gppps_gpsps_fk ON rel_gpsps_gppps(gpsps_fk);
+CREATE INDEX gpsps_gppps_fk ON rel_gpsps_gppps(gppps_fk);
+
+CREATE TABLE ups (
+    pk                SERIAL8 NOT NULL CONSTRAINT ups_pk PRIMARY KEY,
+    patient_fk        INT8,
+    code_fk           INT8,
+    ups_iuid          TEXT NOT NULL,
+    ups_tuid          TEXT,
+    adm_id            TEXT,
+    adm_id_issuer_id  TEXT,
+    adm_id_issuer_uid TEXT,
+    ups_label         TEXT NOT NULL,
+    uwl_label         TEXT NOT NULL,
+    ups_start_time    TIMESTAMP NOT NULL,
+    ups_compl_time    TIMESTAMP,
+    ups_state         INTEGER,
+    ups_prior         INTEGER,
+    created_time      TIMESTAMP,
+    updated_time      TIMESTAMP,
+    ups_attrs         BYTEA,
+FOREIGN KEY (patient_fk) REFERENCES patient(pk)
+);
+CREATE INDEX ups_patient_fk ON ups(patient_fk);
+CREATE INDEX ups_code_fk ON ups(code_fk);
+CREATE UNIQUE INDEX ups_iuid ON ups(ups_iuid);
+CREATE INDEX ups_tuid ON ups(ups_tuid);
+CREATE INDEX ups_adm_id ON ups(adm_id);
+CREATE INDEX ups_adm_id_issuer_id ON ups(adm_id_issuer_id);
+CREATE INDEX ups_adm_id_issuer_uid ON ups(adm_id_issuer_uid);
+CREATE INDEX ups_label ON ups(ups_label);
+CREATE INDEX uwl_label ON ups(uwl_label);
+CREATE INDEX ups_start_time ON ups(ups_start_time);
+CREATE INDEX ups_compl_time ON ups(ups_compl_time);
+CREATE INDEX ups_state ON ups(ups_state);
+CREATE INDEX ups_prior ON ups(ups_prior);
+CREATE INDEX ups_updated_time ON ups(updated_time);
+
+CREATE TABLE rel_ups_appcode (
+    ups_fk            INT8,
+    appcode_fk        INT8,
+FOREIGN KEY (ups_fk) REFERENCES ups(pk),
+FOREIGN KEY (appcode_fk) REFERENCES code(pk)
+);
+CREATE INDEX appcode_ups_fk ON rel_ups_appcode(ups_fk);
+CREATE INDEX ups_appcode_fk ON rel_ups_appcode(appcode_fk);
+
+CREATE TABLE rel_ups_devname (
+    ups_fk            INT8,
+    devname_fk        INT8,
+FOREIGN KEY (ups_fk) REFERENCES ups(pk),
+FOREIGN KEY (devname_fk) REFERENCES code(pk)
+);
+CREATE INDEX devname_ups_fk ON rel_ups_devname(ups_fk);
+CREATE INDEX ups_devname_fk ON rel_ups_devname(devname_fk);
+
+CREATE TABLE rel_ups_devclass (
+    ups_fk            INT8,
+    devclass_fk       INT8,
+FOREIGN KEY (ups_fk) REFERENCES ups(pk),
+FOREIGN KEY (devclass_fk) REFERENCES code(pk)
+);
+CREATE INDEX devclass_ups_fk ON rel_ups_devclass(ups_fk);
+CREATE INDEX ups_devclass_fk ON rel_ups_devclass(devclass_fk);
+
+CREATE TABLE rel_ups_devloc (
+    ups_fk            INT8,
+    devloc_fk         INT8,
+FOREIGN KEY (ups_fk) REFERENCES ups(pk),
+FOREIGN KEY (devloc_fk) REFERENCES code(pk)
+);
+CREATE INDEX devloc_ups_fk ON rel_ups_devloc(ups_fk);
+CREATE INDEX ups_devloc_fk ON rel_ups_devloc(devloc_fk);
+
+CREATE TABLE rel_ups_performer (
+    ups_fk            INT8,
+    performer_fk      INT8,
+FOREIGN KEY (ups_fk) REFERENCES ups(pk),
+FOREIGN KEY (performer_fk) REFERENCES code(pk)
+);
+CREATE INDEX performer_ups_fk ON rel_ups_performer(ups_fk);
+CREATE INDEX ups_performer_fk ON rel_ups_performer(performer_fk);
+
+CREATE TABLE ups_req (
+    pk                SERIAL8 NOT NULL CONSTRAINT ups_req_pk PRIMARY KEY,
+    ups_fk            INT8,
+    req_proc_id       TEXT,
+    accession_no      TEXT,
+    confidentiality   TEXT,
+    req_service       TEXT,
+FOREIGN KEY (ups_fk) REFERENCES ups(pk)
+);
+CREATE INDEX ups_req_ups_fk ON ups_req(ups_fk);
+CREATE INDEX ups_req_proc_id ON ups_req(req_proc_id);
+CREATE INDEX ups_req_acc_no ON ups_req(accession_no);
+CREATE INDEX ups_confidentiality ON ups_req(confidentiality);
+CREATE INDEX ups_req_service ON ups_req(req_service);
+
+CREATE TABLE ups_rel_ps (
+    pk                SERIAL8 NOT NULL CONSTRAINT ups_rel_ps_pk PRIMARY KEY,
+    ups_fk            INT8,
+    sop_iuid          TEXT NOT NULL,
+    sop_cuid          TEXT NOT NULL,
+ FOREIGN KEY (ups_fk) REFERENCES ups(pk)
+);
+CREATE INDEX ups_rel_ps_ups_fk ON ups_rel_ps(ups_fk);
+CREATE INDEX ups_rel_ps_iuid ON ups_rel_ps(sop_iuid);
+CREATE INDEX ups_rel_ps_cuid ON ups_rel_ps(sop_cuid);
+
+CREATE TABLE ups_repl_ps (
+    pk                SERIAL8 NOT NULL CONSTRAINT ups_repl_ps_pk PRIMARY KEY,
+    ups_fk            INT8,
+    sop_iuid          TEXT NOT NULL,
+    sop_cuid          TEXT NOT NULL,
+ FOREIGN KEY (ups_fk) REFERENCES ups(pk)
+);
+CREATE INDEX ups_repl_ps_ups_fk ON ups_repl_ps(ups_fk);
+CREATE INDEX ups_repl_ps_iuid ON ups_repl_ps(sop_iuid);
+CREATE INDEX ups_repl_ps_cuid ON ups_repl_ps(sop_cuid);
+
+CREATE TABLE ups_subscr (
+    pk                SERIAL8 NOT NULL CONSTRAINT ups_subscr_pk PRIMARY KEY,
+    ups_fk            INT8,
+    aet               TEXT NOT NULL,
+    deletion_lock     BOOLEAN NOT NULL,
+FOREIGN KEY (ups_fk) REFERENCES ups(pk)
+);
+CREATE INDEX ups_subscr_ups_fk ON ups_subscr(ups_fk);
+CREATE INDEX ups_deletion_lock ON ups_subscr(deletion_lock);
+CREATE INDEX ups_subscr_aet ON ups_subscr(aet);
+
+CREATE TABLE ups_glob_subscr (
+    pk                SERIAL8 NOT NULL CONSTRAINT ups_glob_subscr_pk PRIMARY KEY,
+    aet               TEXT NOT NULL,
+    deletion_lock     BOOLEAN NOT NULL
+);
+CREATE UNIQUE INDEX ups_glob_subscr_aet ON ups_glob_subscr(aet);
+
+CREATE TABLE hp (
+    pk                SERIAL8 NOT NULL CONSTRAINT hp_pk PRIMARY KEY,
+    user_fk           INT8,
+    hp_iuid           TEXT NOT NULL,
+    hp_cuid           TEXT,
+    hp_name           TEXT,
+    hp_group          TEXT,
+    hp_level          INTEGER,
+    num_priors        INTEGER,
+    num_screens       INTEGER,
+    hp_attrs          BYTEA,
+FOREIGN KEY (user_fk) REFERENCES code(pk)
+);
+CREATE INDEX hp_user_fk ON hp(user_fk);
+CREATE UNIQUE INDEX hp_iuid ON hp(hp_iuid);
+CREATE INDEX hp_cuid ON hp(hp_cuid);
+CREATE INDEX hp_name ON hp(hp_name);
+CREATE INDEX hp_level ON hp(hp_level);
+CREATE INDEX num_priors ON hp(num_priors);
+CREATE INDEX num_screens ON hp(num_screens);
+
+CREATE TABLE hpdef (
+    pk                SERIAL8 NOT NULL CONSTRAINT hpdef_pk PRIMARY KEY,
+    hp_fk             INT8,
+    modality          TEXT,
+    laterality        TEXT,
+FOREIGN KEY (hp_fk) REFERENCES hp(pk)
+);
+CREATE INDEX hp_fk ON hpdef(hp_fk);
+CREATE INDEX hpdef_modality ON hpdef(modality);
+CREATE INDEX hpdef_laterality ON hpdef(laterality);
+
+CREATE TABLE rel_hpdef_region (
+    hpdef_fk          INT8,
+    region_fk         INT8,
+FOREIGN KEY (hpdef_fk) REFERENCES hpdef(pk),
+FOREIGN KEY (region_fk) REFERENCES code(pk)
+);
+CREATE INDEX region_hpdef_fk ON rel_hpdef_region(hpdef_fk);
+CREATE INDEX hpdef_region_fk ON rel_hpdef_region(region_fk);
+
+CREATE TABLE rel_hpdef_proc (
+    hpdef_fk          INT8,
+    proc_fk           INT8,
+FOREIGN KEY (hpdef_fk) REFERENCES hpdef(pk),
+FOREIGN KEY (proc_fk) REFERENCES code(pk)
+);
+CREATE INDEX proc_hpdef_fk ON rel_hpdef_proc(hpdef_fk);
+CREATE INDEX hpdef_proc_fk ON rel_hpdef_proc(proc_fk);
+
+CREATE TABLE rel_hpdef_reason (
+    hpdef_fk          INT8,
+    reason_fk         INT8,
+FOREIGN KEY (hpdef_fk) REFERENCES hpdef(pk),
+FOREIGN KEY (reason_fk) REFERENCES code(pk)
+);
+CREATE INDEX reason_hpdef_fk ON rel_hpdef_reason(hpdef_fk);
+CREATE INDEX hpdef_reason_fk ON rel_hpdef_reason(reason_fk);
+
+CREATE TABLE priv_patient (
+    pk                SERIAL8 NOT NULL CONSTRAINT priv_patient_pk PRIMARY KEY,
+    priv_type         INTEGER NOT NULL,
+    pat_id            TEXT,
+    pat_id_issuer     TEXT,
+    pat_name          TEXT,
+    pat_attrs         BYTEA
+);
+CREATE INDEX priv_pat_id ON patient(pat_id, pat_id_issuer);
+CREATE INDEX priv_pat_type ON priv_patient(priv_type);
+CREATE INDEX priv_patient_name ON priv_patient(pat_name);
+
+CREATE TABLE priv_study (
+    pk                SERIAL8 NOT NULL CONSTRAINT priv_study_pk PRIMARY KEY,
+    patient_fk        INT8,
+    priv_type         INTEGER NOT NULL,
+    study_iuid        TEXT NOT NULL,
+    accession_no      TEXT,
+    study_attrs       BYTEA,
+FOREIGN KEY (patient_fk) REFERENCES priv_patient(pk)
+);
+CREATE INDEX priv_patient_fk ON priv_study(patient_fk);
+CREATE INDEX priv_study_type ON priv_study(priv_type);
+CREATE INDEX priv_study_iuid ON priv_study(study_iuid);
+CREATE INDEX priv_study_accs_no ON priv_study(accession_no);
+
+CREATE TABLE priv_series (
+    pk                SERIAL8 NOT NULL CONSTRAINT priv_series_pk PRIMARY KEY,
+    study_fk          INT8,
+    priv_type         INTEGER NOT NULL,
+    series_iuid       TEXT NOT NULL,
+    src_aet           TEXT,
+    series_attrs      BYTEA,
+FOREIGN KEY (study_fk) REFERENCES priv_study(pk)
+);
+CREATE INDEX priv_study_fk ON priv_series(study_fk);
+CREATE INDEX priv_series_type ON priv_series(priv_type);
+CREATE INDEX priv_series_iuid ON priv_series(series_iuid);
+CREATE INDEX priv_ser_src_aet ON priv_series(src_aet);
+
+
+CREATE TABLE priv_instance (
+    pk                SERIAL8 NOT NULL CONSTRAINT priv_instance_pk PRIMARY KEY,
+    series_fk         INT8,
+    priv_type         INTEGER NOT NULL,
+    sop_iuid          TEXT NOT NULL,
+    created_time      TIMESTAMP,
+    inst_attrs        BYTEA,
+FOREIGN KEY (series_fk) REFERENCES priv_series(pk)
+);
+CREATE INDEX priv_series_fk ON priv_instance(series_fk);
+CREATE INDEX priv_inst_type ON priv_instance(priv_type);
+CREATE INDEX priv_sop_iuid ON priv_instance(sop_iuid);
+CREATE INDEX priv_inst_created ON priv_instance(created_time);
+
+CREATE TABLE priv_file (
+    pk                SERIAL8 NOT NULL CONSTRAINT priv_file_pk PRIMARY KEY,
+    instance_fk       INT8,
+    filesystem_fk     INT8,
+    filepath          TEXT NOT NULL,
+    file_tsuid        TEXT NOT NULL,
+    file_md5          TEXT,
+    file_size         INT8,
+    file_status       INTEGER,
+FOREIGN KEY (instance_fk) REFERENCES priv_instance(pk),
+FOREIGN KEY (filesystem_fk) REFERENCES filesystem(pk)
+);
+CREATE INDEX priv_instance_fk ON priv_file(instance_fk);
+CREATE INDEX priv_fs_fk ON priv_file(filesystem_fk);
+
+CREATE TABLE published_study (
+    pk                SERIAL8 NOT NULL CONSTRAINT published_study_pk PRIMARY KEY,
+    study_fk          INT8,
+    created_time      TIMESTAMP,
+    updated_time      TIMESTAMP,
+    doc_uid           TEXT,
+    docentry_uid      TEXT,
+    repository_uid    TEXT,
+    status            INTEGER NOT NULL,
+FOREIGN KEY (study_fk) REFERENCES study(pk)
+);
+CREATE INDEX published_study_fk ON published_study(study_fk);
+CREATE INDEX published_study_status ON published_study(status);
+CREATE INDEX repository_uid ON published_study(repository_uid);
+
+CREATE TABLE device (
+    pk                SERIAL8 NOT NULL CONSTRAINT device_pk PRIMARY KEY,
+    station_name      TEXT NOT NULL,
+    station_aet       TEXT NOT NULL,
+    modality          TEXT NOT NULL
+);
+CREATE UNIQUE INDEX dev_station_name ON device(station_name);
+
+CREATE TABLE rel_dev_proto (
+    device_fk         INT8,
+    prcode_fk         INT8,
+FOREIGN KEY (device_fk) REFERENCES device(pk),
+FOREIGN KEY (prcode_fk) REFERENCES code(pk)
+);
+CREATE INDEX device_fk ON rel_dev_proto(device_fk);
+CREATE INDEX prcode_fk ON rel_dev_proto(prcode_fk);
+
+CREATE TABLE users(
+    user_id           TEXT NOT NULL CONSTRAINT users_pk PRIMARY KEY,
+    passwd            TEXT
+);
+
+CREATE TABLE roles(
+    user_id           TEXT,
+    roles             TEXT,
+FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+CREATE INDEX user_id ON roles(user_id);
+
+INSERT INTO users VALUES('admin','0DPiKuNIrrVmD8IUCuw1hQxNqZc=');
+INSERT INTO roles VALUES('admin','JBossAdmin');
+INSERT INTO roles VALUES('admin','WebAdmin');
+INSERT INTO roles VALUES('admin','WebUser');
+INSERT INTO roles VALUES('admin','McmUser');
+INSERT INTO roles VALUES('admin','AuditLogUser');
+INSERT INTO roles VALUES('admin','Doctor');
+
+INSERT INTO users VALUES('user','Et6pb+wgWTVmq3VpLJlJWWgzrck=');
+INSERT INTO roles VALUES('user','WebUser');
+INSERT INTO roles VALUES('user','McmUser');
+INSERT INTO roles VALUES('user','Doctor');
+
+INSERT INTO ae (aet,hostname,port,pat_id_issuer,ae_desc,installed)
+    VALUES('DCM4CHEE','localhost',11112,'DCM4CHEE','This dcm4chee archive instance',true);
+INSERT INTO ae (aet,hostname,port,ae_desc,installed)
+    VALUES('CDRECORD','localhost',10104,'Media Creation Server (part of dcm4chee)',true);
+
