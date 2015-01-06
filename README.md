@@ -42,10 +42,12 @@ When you type the password "1", it will look like nothing is happening (not typi
 <p>3- Unzip the dcm4chee-files folder from git into dmc4hcee-files</p>
 <p>4- Download the following and place them into dmc4hcee-files folder :
 </p>
+<p>Exes.zip(Place the content of this file into dcm4chee-files folder) @ Link coming soon</p>
 <ul>
-<li>DCM4CHEE2.18.0psql.exe @ Link coming soon</li>
-<li>DBbackups.exe @ Link coming soon</li>
-<li>dcm4chee-arr-3.0.12-psql.exe @ Link coming soon</li>
+<li>DCM4CHEE2.18.0psql.exe </li>
+<li>DBbackups.exe</li>
+<li>dcm4chee-arr-3.0.12-psql.exe</li>
+<li>environment.exe</li>
 <li>Google chrome standalone(needed for web viewers) @ http://www.google.com/chrome/eula.html?system=true&standalone=1</li>
 <li>Postgresql 9.3.4 @ http://www.enterprisedb.com/products-services-training/pgdownload#windows</li>
 <li>Java JDK 7 @ http://download.oracle.com/otn-pub/java/jdk/7u71-b14/jdk-7u71-windows-i586.exe</li>
