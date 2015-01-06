@@ -17,7 +17,7 @@
 ---------------------------------------------
 <h3>Installation Process</h3>
 <p>1- Make sure your windows OS is installed on C drive. If not, please refer to compiling the project and edit the script file & generate the setup file according to your needs.</p>
-<p>2- Download the dcm4chee-installer\dcm4chee-2.18.0-psql installer\bin\DCM4CHEE-2.18.0-postgresql_x86_x64.exe & run the dcm4chee-postgresql.exe file $ Accept the risk and click yes.</p>
+<p>2- Download the release version DCM4CHEE-2.18.0-postgresql_x86_x64.exe & run the dcm4chee-postgresql.exe file $ Accept the risk and click yes.</p>
 <p>3- Choose the Java development kit directory to be c:\dcm4chee\jdk(or whatever is set when compiling) otherwise it will not work.</p>
 <p>4- Choose the postgresql directory to be c:\dcm4chee\db (or whatever is set when compiling)</p>
 <p>5- Choose the postgresql data directory to be c:\dcm4chee\db\data(this is selected automatically once the postgre directory is selected in the previous step#4.</p>
