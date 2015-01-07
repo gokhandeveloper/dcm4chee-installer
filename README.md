@@ -42,7 +42,7 @@ When you type the password "1", it will look like nothing is happening (not typi
 <p>3- Unzip the dcm4chee-files folder from git into dcm4chee-files folder</p>
 <p>4- Download the following and place them into dcm4chee-files folder. You will need them in order to compile & run and install DCM4CHEE successfully:
 </p>
-<p>Exes.zip(Extract & place the content of this file into dcm4chee-files folder. ) @ Link coming soon</p>
+<p>Exes.zip(Extract & place the content of this file into dcm4chee-files folder. ) @ https://www.dropbox.com/s/57jqqmj9nh6cdev/exes.zip?dl=0</p>
 <ul>
 <li>DCM4CHEE2.18.0psql.exe(this includes jboss application integration, postgresql configuration and proper sql driver, weasis, oviyam and ioviyam) </li>
 <li>DBbackups.exe(backup task script for databases)</li>
